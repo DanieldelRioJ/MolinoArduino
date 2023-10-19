@@ -1,6 +1,7 @@
 #include "distance_sensor.h"
 
 DistanceSensor::DistanceSensor(uint8_t shtdwnPin){
+  pinMode(shtdwnPin, OUTPUT);
   this->sensor = Adafruit_VL6180X();
   this->shtdwnPin = shtdwnPin;
   this->onOff(false);
@@ -23,13 +24,9 @@ Measure DistanceSensor::getDistance(){
   uint8_t range = this->sensor.readRange();
   uint8_t status = this->sensor.readRangeStatus();
 
-  if (status == VL6180X_ERROR_NONE) {
-    Serial.print(" Range: "); Serial.println(range);
-  }
-
   // Some error occurred, print it out!
 
-  if  ((status >= VL6180X_ERROR_SYSERR_1) && (status <= VL6180X_ERROR_SYSERR_5)) {
+  /*if  ((status >= VL6180X_ERROR_SYSERR_1) && (status <= VL6180X_ERROR_SYSERR_5)) {
     Serial.print("(System error)");
   }
   else if (status == VL6180X_ERROR_ECEFAIL) {
@@ -55,7 +52,7 @@ Measure DistanceSensor::getDistance(){
   }
   else if (status == VL6180X_ERROR_RANGEOFLOW) {
     Serial.print("Range reading overflow");
-  }
+  }*/
 
   Measure measure;
   measure.range = range;

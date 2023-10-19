@@ -50,7 +50,6 @@ void Alarm::_ring(unsigned long timeRingingOn, unsigned long timeRingingOff){
 }
 
 void Alarm::_turn(bool onOff){
-  Serial.println(onOff);
   this->_ringing = onOff;
   digitalWrite(this->_pin, !onOff ? LOW: HIGH);
 }
