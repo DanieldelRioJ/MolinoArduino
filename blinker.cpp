@@ -1,22 +1,21 @@
 #include "Blinker.h"
 #include "Arduino.h"
 
-//HIGH IS RELÉ WITH CIRCUIT CLOSED
-//DOWN IS RELÉ WITH CIRCUIT OPENED
-
 Blinker::Blinker(uint8_t pin, bool activatedWithHigh){
   this->_pin = pin;  
   pinMode(this->_pin, OUTPUT);
-  this->turnoff();
   this->_activatedWithHigh = activatedWithHigh;
+  this->turnoff();
   this->_lastTimeChanged = 0;
 };
 
-void Blinker::mode(unsigned long *sequence, unsigned long size){
+void Blinker::mode(unsigned long *sequence, uint8_t size){
   this->_sequenceIndex = 0;
   this->_size = size;
   this->_activated = true;
   this->_sequence = sequence;  
+  this->_lastTimeChanged = millis();
+  this->_turn(true);
 };
 
 void Blinker::loop(){  

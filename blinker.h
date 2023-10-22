@@ -9,7 +9,7 @@ class Blinker
   public:
     Blinker(uint8_t pin, bool activatedWithHigh = true);
     void turnoff();
-    void mode(unsigned long *sequence, unsigned long size);
+    void mode(unsigned long *sequence, uint8_t size);
     void loop();
 
   private:
@@ -17,8 +17,8 @@ class Blinker
     bool _activatedWithHigh;
     unsigned long _lastTimeChanged;
     unsigned long *_sequence;
-    unsigned long _sequenceIndex;
-    unsigned long _size;
+    uint8_t _sequenceIndex;
+    uint8_t _size;
     bool _activated;
     void _turn(bool onOff);
 
