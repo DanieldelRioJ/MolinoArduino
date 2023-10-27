@@ -18,10 +18,11 @@ ControlResults SensorController::getControlResults(){
   }
   this->_hopperMeanMeasure = 0.9 * this->_hopperMeanMeasure + 0.1 * hopperMeasure.range; //mm
   //Serial.println(String(hopperMeasure.range) +", "+ String(this->_hopperMeanMeasure));
-  if(this->_hopperMeanMeasure > DEFAULT_HOPPER_THRESHOLD){
-    this->_timesCheckedHopperEmpty++;
+  if(this->_hopperMeanMeasure > DEFAULT_HOPPER_THRESHOLD){    
     if(this->_timesCheckedHopperEmpty > MAX_EXCEEDED_MEASURES_BEFORE_WARNING){
       results.isHopperEmpty = true;
+    }else{      
+      this->_timesCheckedHopperEmpty++;
     }
   }else{
     this->_timesCheckedHopperEmpty = 0;

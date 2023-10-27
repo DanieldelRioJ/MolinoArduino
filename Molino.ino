@@ -4,7 +4,7 @@
 #include "distance_dial.h"
 #include "sensor_controller.h"
 
-#define MAX_TIME_WARNING 7000
+#define MAX_TIME_WARNING 10000
 
 #define BUZZER 3
 #define DISTANCE_DIAL A1
@@ -20,10 +20,12 @@
 
 #define STATE_EEPROM_ADDRESS 0
 
-Blinker mainAlarm(LED_BUILTIN);
+Blinker mainAlarm(MAIN_ALARM, false);
 Blinker buzzerAlarm(BUZZER);
 DistanceDial distanceDial(DISTANCE_DIAL);
 
+unsigned long alarmHopperEmptyWarningSequence[6] = {50,100,50,2000};
+unsigned long alarmFullContainerWarningSequence[6] = {50,2000};
 unsigned long buzzerHopperEmptyWarningSequence[6] = {100,100,100,1000};
 unsigned long buzzerContainerFullWarningSequence[6] = {200,1000};
 unsigned long buzzerHopperEmptyStoppedSequence[6] = {100,100,100,5000};
@@ -124,13 +126,13 @@ void loop(){
     }
   }
   buzzerAlarm.loop();
+  mainAlarm.loop();
 }
 
 ControlResults checkMeasures(){
   const float potenciometerRead = distanceDial.getDistance();
   sensorController.setContainerThreshold(potenciometerRead);
   ControlResults controlResults = sensorController.getControlResults();
-  Serial.println(controlResults.isContainerFull);
   if(controlResults.isContainerFull){
     if(programState == ProgramStates::RUNNING){
       firstTimeContainerWarning = millis();
@@ -155,18 +157,21 @@ void running(){
   EEPROM.update(STATE_EEPROM_ADDRESS, 0);   
   programState = ProgramStates::RUNNING;
   buzzerAlarm.turnoff();
+  mainAlarm.turnoff();
 }
 
 void containerFull(){
   Serial.println("WARNING ContainerFull");
   programState = ProgramStates::WARNING;
   buzzerAlarm.mode(buzzerContainerFullWarningSequence, sizeof(buzzerContainerFullWarningSequence) / sizeof(unsigned long));
+  mainAlarm.mode(alarmFullContainerWarningSequence, sizeof(alarmFullContainerWarningSequence) / sizeof(unsigned long));
 }
 
 void hopperEmpty(){
   Serial.println("WARNING HopperEmpty");
   programState = ProgramStates::WARNING;
   buzzerAlarm.mode(buzzerHopperEmptyWarningSequence, sizeof(buzzerHopperEmptyWarningSequence) / sizeof(unsigned long));
+  mainAlarm.mode(alarmHopperEmptyWarningSequence, sizeof(alarmHopperEmptyWarningSequence) / sizeof(unsigned long));
 }
 
 
@@ -175,6 +180,7 @@ void millStoppedContainerFull(){
   EEPROM.update(STATE_EEPROM_ADDRESS, 1);  
   programState = ProgramStates::STOPPED;
   buzzerAlarm.mode(buzzerContainerFullStoppedSequence, sizeof(buzzerContainerFullStoppedSequence) / sizeof(unsigned long));
+  mainAlarm.turnoff();
 }
 
 void millStoppedHopperEmpty(){  
@@ -182,4 +188,5 @@ void millStoppedHopperEmpty(){
   EEPROM.update(STATE_EEPROM_ADDRESS, 2);  
   programState = ProgramStates::STOPPED;
   buzzerAlarm.mode(buzzerHopperEmptyStoppedSequence, sizeof(buzzerHopperEmptyStoppedSequence) / sizeof(unsigned long));
+  mainAlarm.turnoff();
 }
